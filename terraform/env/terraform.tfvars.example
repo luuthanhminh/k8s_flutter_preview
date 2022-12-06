@@ -1,0 +1,16 @@
+region             = "europe-west3"
+availability_zones = ["europe-west3-b", "europe-west3-c"]
+project_id         = "viewo-test-sunny"
+project            = "viewo"
+environment        = "dev"
+# Net work
+vpc_cidr     = "172.16.0.0/16"
+pod_cidr     = "172.20.16.0/20"
+service_cidr = "172.20.32.0/20"
+# Node type
+machine_type         = "n2d-standard-4"
+min_cluster_capacity = 1
+max_cluster_capacity = 10
+disk_type            = "pd-standard"
+disk_size_gb         = 50
+
