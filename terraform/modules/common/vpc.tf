@@ -9,7 +9,7 @@ module "vpc" {
     subnet_name           = "${local.prefix}"
     subnet_ip             = var.vpc_cidr
     subnet_region         = var.region
-    subnet_private_access = "false"
+    subnet_private_access = "true"
     subnet_flow_logs      = "false"
   }]
   secondary_ranges = {

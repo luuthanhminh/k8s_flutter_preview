@@ -1,5 +1,5 @@
 module "gke" {
-  source                    = "terraform-google-modules/kubernetes-engine/google//modules/private-cluster"
+  source                    = "terraform-google-modules/kubernetes-engine/google"
   project_id                = var.project_id
   name                      = local.cluster_name
   regional                  = true
@@ -20,12 +20,11 @@ module "gke" {
   # create_service_account    = true
   default_max_pods_per_node = 20
   remove_default_node_pool  = true
-  disable_default_snat = true
-  # master_ipv4_cidr_block          = var.master_ipv4_cidr_block 
+  grant_registry_access     = true
 
   master_authorized_networks = [{
-    cidr_block   = var.vpc_cidr
-    display_name = "VPC"
+    cidr_block   = "14.161.17.5/32"
+    display_name = "Dev"
   }]
 
   node_pools = [
