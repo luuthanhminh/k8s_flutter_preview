@@ -1,0 +1,27 @@
+include: package:lints/recommended.yaml
+
+analyzer:
+  language:
+    strict-raw-types: true
+  strong-mode:
+    implicit-casts: false
+  exclude:
+    - doc/generated/**
+    - flutter-sdks/**
+    # TODO(https://github.com/dart-lang/dart-pad/issues/1712): This seems to be
+    # hiding ~2 dozen legitimate analysis issues.
+    - lib/src/protos/**
+    - local_pub_cache/**
+    - project_templates/**
+
+linter:
+  rules:
+    - always_declare_return_types
+    - avoid_dynamic_calls
+    - directives_ordering
+    - prefer_final_in_for_each
+    - prefer_final_locals
+    - prefer_relative_imports
+    - prefer_single_quotes
+    - sort_pub_dependencies
+    - unawaited_futures
