@@ -3,7 +3,8 @@ FROM debian:latest
 
 # Install flutter dependencies
 RUN apt-get update 
-RUN apt-get install -y curl git wget unzip libgconf-2-4 gdb libstdc++6 libglu1-mesa fonts-droid-fallback lib32stdc++6 python3
+RUN apt-get install -y curl git wget unzip libgconf-2-4 gdb libstdc++6 libglu1-mesa fonts-droid-fallback lib32stdc++6 python3 tmux vim procps
+
 RUN apt-get clean
 
 # Clone the flutter repo
@@ -29,4 +30,7 @@ RUN flutter build web
 # Record the exposed port
 EXPOSE 5000
 
-CMD ["flutter", "run", "--web-port", "5000"]
+# CMD ["flutter", "run", "--web-port", "5000" , "-d", "web-server"]
+# flutter run --web-port 5000 -d web-server --web-hostname 0.0.0.0 --pid-file /tmp/flutter.pid
+
+CMD ["tail", "-f", "/dev/null"]

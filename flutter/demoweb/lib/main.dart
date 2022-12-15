@@ -6,7 +6,7 @@ void main() {
       home: Scaffold(
         appBar: AppBar( 
           leading: Icon(Icons.menu),
-          title: Text("Hello World 112")
+          title: Text("Hello World")
         ),
         body: Center(
           child: FlutterLogo(
