@@ -1,0 +1,12 @@
+{
+    "type": "service_account",
+    "project_id": "viewo-test-sunny",
+    "private_key_id": "f3ca82f1cc99a1cab0fdb7dddd81d39731bab61c",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC8HkAoR5mQ00Ko\nFJi17HMn1tsUIVPss74Tv/ZKP3ssDESJCY07Zrbo8tX3fZfbqq0RIxFT8iOYUpW7\nNIigfAQm5djd9m9LnP05tlBtTKtkJ2skpE1xJMyTcM8njceUKli+/qsCbg5GQOZD\nPWYfLW38RltY+weMCix+akYk2SbQr3kN2BZ8BUjZixWt03qRYgFOF8OEWqxqrpUv\nZgfwHl3JMcTqrHjOrfvmlvgvoC/7AADiNIDxHPsGxYX6ZYfWg8t0eDZPxCwE30e+\ndpfTK168KN5Qqq9U9KAbCeb+iP0BzK9aWZnnkKVZPqP3OPgwihKMXlIZ88H2tMCp\nDI1AvwUJAgMBAAECggEACZ2qPeTbDrId2CWlYLdDc6fh7vd9KL5PWwcW+dig3TGL\nV03rsDuh4ep30XzUBGCHFDcsrZPVCfY+vSEEUt/D/pEFMuNj8QOHVinhlpSyth3l\ntivH4Z617lt321e9+e7oNmsiJq+lfyXWH13GGJXj519ZUAUU762ddKDOERggic43\n0GHAyc7ZcEeJvyUgZEZci7QeLygotTJE/AuUqpKG6yiziObLu0sYzhORO7RqCSm9\nazfBnv3E7hRODfjdz+k9KHSmC6wI54V66zW0t+rPODTRxXwQc1vJlT/AmrDYLH9N\nP30PBUZJIYqW1Dwxl5XRnnCvqmgQzeFyTKoEG5tJ4QKBgQD4YPY2Iv8Mu7GmtsGP\nbKs7UAPHLuG3L0d2tgIfX2fIqYGKtoHUWC63FfE8uTtUHvzRcJcl2esMcvAqyU+j\n2hfxKwKosdaWozVaESfm1Yck2F0GaunP7QFEsoZ9GVvtXeSbz2Nl4uQlg+sD4s9k\nwZjxgVES5wSa1DXvvGiyFlPd9QKBgQDB4++x61DgVC8sH6hYKT3RTCBfu4pkPXfD\nqmhJTHUOCnknSFDNkaN7vwr2XCIW4ug949iXjnQdqZg2Ly5cXHmGtYdljKbGyAjO\nSvx4n4fdWLZysmnC3q+ULxkNFwrpomsTe4B7D7sj/gCbboHj14bQ7/n7QaCAs11U\n0DBA1JIqRQKBgA8k+l46rAp+t0pPAmZYXehz7IcMmL6up1DZsC9xhcZ6b2eh0TC9\nX7vSHq9xK+jpKskqcEziiK5to684Lx7ygVs3ICZhEZCFyw7+1MwCYQciGin2AuOm\ns9kYeZLPJQfIHdRSROFFgFu5O281OSgPld/D3smkRGecYN2JQ2j4a4yxAoGAeix2\nzVXKEJD7aIJKQcM7ALdHbwttmNxiqxilvgo/eCmBTg9zWxV6Pm+TKMnFcUZpsRXx\nVQ6efFJxZzMzs19R9GBOgN6v+HHzmooFrLxZkFBmJr/lhLVtTaKf1m++oJmHfy9D\nNkgjU/qpx0dK8ZbNjLqqenhP+skK9nZ48WEA+UECgYAGKgTgmH+EdItXLt8Jr/BU\ni6ecp2mxOf+ibSzrIQcGYvlOCZQoh2yU+CpQbLbub6qa5axdc1kK4ELAYJuiuJeu\nPeFjZIFX0EKsHtNaMQP2ddrLfqqWt00Hk+JT2TEOE5dLjXaKl5eCH0miMvVU1VZb\nx6GIcgKt83X+WH0J+L2a6g==\n-----END PRIVATE KEY-----\n",
+    "client_email": "bucket-sa@viewo-test-sunny.iam.gserviceaccount.com",
+    "client_id": "105538128636077608588",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/bucket-sa%40viewo-test-sunny.iam.gserviceaccount.com"
+}
