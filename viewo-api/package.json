@@ -13,7 +13,7 @@
     "start:prod": "node dist/main.js",
     "typeorm": "typeorm-ts-node-esm",
     "migration:generate": "yarn run typeorm migration:generate -d ormconfig",
-    "migration:create": "yarn run typeorm migration:create -d ormconfig",
+    "migration:create": "yarn run typeorm migration:create",
     "new": "hygen new",
     "migration:revert": "yarn run typeorm migration:revert",
     "schema:drop": "yarn run typeorm schema:drop",
