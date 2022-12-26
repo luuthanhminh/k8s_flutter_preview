@@ -17,10 +17,16 @@ export class K8sService {
     __dirname,
     '../../resources/ingress.yaml',
   );
+  readonly serviceTemplateYaml = path.join(
+    __dirname,
+    '../../resources/service.yaml',
+  );
   readonly deploymentTemplateYaml = path.join(
     __dirname,
     '../../resources/deployment.yaml',
   );
+
+  readonly kubeConfig = path.join(__dirname, '../../resources/config.yaml');
 
   getKubeConfig(): k8s.KubeConfig {
     if (this.kc) {
@@ -68,16 +74,76 @@ export class K8sService {
     deployment = this.replaceAll(deployment, '__NAMESPACE__', nameSpace);
 
     let ingress = await fsReadFileP(this.ingressTemplateYaml, 'utf8');
-    ingress = this.replaceAll(ingress, '__PODID__', podId);
-    ingress = this.replaceAll(ingress, '__DOMAIN__', domain);
+    ingress = this.replaceAll(ingress, '__DOMAIN__', domain.toLowerCase());
     ingress = this.replaceAll(ingress, '__NAMESPACE__', nameSpace);
+    ingress = this.replaceAll(ingress, '__NAME__', domain.toLowerCase());
+    ingress = this.replaceAll(ingress, '__SVCNAME__', `svc-${podId}`);
 
-    console.log(deployment);
+    let service = await fsReadFileP(this.serviceTemplateYaml, 'utf8');
+    service = this.replaceAll(service, '__PODID__', podId);
+    service = this.replaceAll(service, '__NAME__', `svc-${podId}`);
+    service = this.replaceAll(service, '__NAMESPACE__', nameSpace);
 
-    console.log(ingress);
-
-    const tasks = [deployment].map((spec) => this.apply(spec));
+    const tasks = [deployment, service, ingress].map((spec) =>
+      this.apply(spec),
+    );
     await Promise.all(tasks);
+  }
+  async createDeployment(k8Yaml: string): Promise<boolean> {
+    const client = this.getKubeConfig().makeApiClient(k8s.AppsV1Api);
+
+    const deployment = yaml.load(k8Yaml) as k8s.V1Deployment;
+
+    if (!deployment.metadata?.namespace) {
+      throw new Error('Invalid namespace in');
+    }
+
+    try {
+      await client.createNamespacedDeployment(
+        deployment.metadata.namespace,
+        deployment,
+      );
+      return true;
+    } catch (e) {
+      console.error(e); // pass exception object to error handler
+    }
+    return false;
+  }
+
+  async createIngress(k8Yaml: string): Promise<boolean> {
+    const client = this.getKubeConfig().makeApiClient(k8s.NetworkingV1Api);
+
+    const ingress = yaml.load(k8Yaml) as k8s.V1Ingress;
+
+    if (!ingress.metadata?.namespace) {
+      throw new Error('Invalid namespace in');
+    }
+
+    try {
+      await client.createNamespacedIngress(ingress.metadata.namespace, ingress);
+      return true;
+    } catch (e) {
+      console.error(e); // pass exception object to error handler
+    }
+    return false;
+  }
+
+  async createService(k8Yaml: string): Promise<boolean> {
+    const client = this.getKubeConfig().makeApiClient(k8s.CoreV1Api);
+
+    const svc = yaml.load(k8Yaml) as k8s.V1Service;
+
+    if (!svc.metadata?.namespace) {
+      throw new Error('Invalid namespace in');
+    }
+
+    try {
+      await client.createNamespacedService(svc.metadata.namespace, svc);
+      return true;
+    } catch (e) {
+      console.error(e); // pass exception object to error handler
+    }
+    return false;
   }
 
   async apply(k8Yaml: string): Promise<k8s.KubernetesObject[]> {
@@ -101,15 +167,7 @@ export class K8sService {
       try {
         // try to get the resource, if it does not exist an error will be thrown and we will end up in the catch
         // block.
-        await client.read({
-          ...spec,
-          apiVersion: spec.apiVersion,
-          kind: spec.kind,
-          metadata: {
-            name: spec.metadata.name ?? '',
-            namespace: spec.metadata.namespace ?? '',
-          },
-        });
+        await client.read(spec);
         // we got the resource, so it exists, so patch it
         //
         // Note that this could fail if the spec refers to a custom resource. For custom resources you may need

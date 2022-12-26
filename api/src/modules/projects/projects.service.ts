@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectDto } from './dto/project.dto';
-import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectEntity } from './entities/project.entity';
 import { K8sService } from '../../shared/services/k8s.service';
 import { ApiConfigService } from '../../shared/services/api-config.service';
@@ -20,7 +19,7 @@ export class ProjectsService {
   ) {}
   async create(createProjectDto: CreateProjectDto) {
     const projectDto = new ProjectDto();
-    const id = generateShortId(projectDto.id, 8);
+    const id = generateShortId(projectDto.id, 8).toLowerCase();
     projectDto.projectName = createProjectDto.projectName;
     projectDto.domain = `${id}.${this.apiConfigService.baseDomain}`;
     projectDto.bucketName = `${this.apiConfigService.bucketName}/${id}`;

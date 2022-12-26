@@ -59,4 +59,3 @@ spec:
             path: hotreload.sh
           - key: hotreloader.sh
             path: hotreloader.sh
-          defaultMode: 0777
