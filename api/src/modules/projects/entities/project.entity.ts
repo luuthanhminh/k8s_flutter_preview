@@ -11,14 +11,17 @@ export class ProjectEntity extends BaseEntity<ProjectDto> {
   bucketName: string;
 
   @Column()
-  baseDomain: string;
+  domain: string;
+
+  @Column({ nullable: true })
+  isDeployed: boolean;
 
   toDto(): ProjectDto {
     const dto = new ProjectDto();
     dto.id = this.id;
     dto.projectName = this.projectName;
     dto.bucketName = this.bucketName;
-    dto.baseDomain = this.baseDomain;
+    dto.domain = this.domain;
     return dto;
   }
   constructor(dto?: ProjectDto) {
@@ -26,7 +29,7 @@ export class ProjectEntity extends BaseEntity<ProjectDto> {
     if (dto) {
       this.projectName = dto.projectName;
       this.bucketName = dto.bucketName;
-      this.baseDomain = dto.baseDomain;
+      this.domain = dto.domain;
     }
   }
 }

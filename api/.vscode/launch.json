@@ -1,0 +1,53 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "attach",
+        "name": "Attach NestJS WS",
+        "port": 9229,
+        "restart": true,
+        "stopOnEntry": false,
+        "protocol": "inspector"
+      },
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Debug current File [TS]",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "console": "integratedTerminal",
+        "args": [
+          "--trace-warnings",
+          "-r",
+          "dotenv/config",
+          "-r",
+          "ts-node/register",
+          "-r",
+          "tsconfig-paths/register",
+          "--",
+          "${file}"
+        ]
+      },
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Debug current File [JS]",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "console": "integratedTerminal",
+        "args": [
+          "--trace-warnings",
+          "-r",
+          "dotenv/config",
+          "--",
+          "${file}"
+        ]
+      }
+    ]
+  }

@@ -121,6 +121,18 @@ export class ApiConfigService {
     };
   }
 
+  get baseDomain(): string {
+    return this.getString('BASE_DOMAIN');
+  }
+
+  get bucketName(): string {
+    return this.getString('BUCKET_NAME');
+  }
+
+  get namespace(): string {
+    return this.getString('NAMESPACE');
+  }
+
   private get(key: string): string {
     const value = this.configService.get<string>(key);
 

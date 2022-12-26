@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 6661fed7-1968-41f9-bdd0-0fc685b52fb9
+  namespace: preview
+  labels:
+    app: 6661fed7-1968-41f9-bdd0-0fc685b52fb9
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: 6661fed7-1968-41f9-bdd0-0fc685b52fb9
+  template:
+    metadata:
+      labels:
+        app: 6661fed7-1968-41f9-bdd0-0fc685b52fb9
+    spec:
+      containers:
+      - name: flutter
+        image: eu.gcr.io/viewo-test-sunny/flutter:master
+        env:
+        - name: BUCKET_NAME
+          value: "viewo-projects/dDgVspbL"
+        ports:
+          - name: api
+            containerPort: 3000
+            protocol: TCP
+          - name: preview
+            containerPort: 5000
+            protocol: TCP
+        lifecycle:
+          postStart:
+            exec:
+              command: ["sh", "-c", "gcloud auth activate-service-account --key-file=/data/sa_credentials.json && gsutil -m -d rsync -r gs://$BUCKET_NAME /app && sh /scripts/startup.sh"]
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+              - SYS_ADMIN
+        volumeMounts:
+        - name: sa-volume
+          mountPath: /data
+        - name: scripts-volume
+          mountPath: /scripts
+      volumes:
+      - name: sa-volume
+        secret:
+          secretName: csi-gcs-secret
+          items:
+          - key: key
+            path: sa_credentials.json
+      - name: scripts-volume
+        configMap:
+          name: preview-scripts
+          items:
+          - key: startup.sh
+            path: startup.sh
+          - key: hotreload.sh
+            path: hotreload.sh
+          - key: hotreloader.sh
+            path: hotreloader.sh
+          defaultMode: 0777

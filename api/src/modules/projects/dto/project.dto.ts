@@ -9,5 +9,5 @@ export class ProjectDto extends BaseDto {
   bucketName: string;
 
   @ApiProperty()
-  baseDomain: string;
+  domain: string;
 }

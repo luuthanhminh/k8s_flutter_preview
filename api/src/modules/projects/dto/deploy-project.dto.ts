@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateProjectDto {
+export class DeployProjectDto {
   @ApiProperty()
-  projectName: string;
+  id: string;
 }
