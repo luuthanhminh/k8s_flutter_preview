@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: viewo-api
+  labels:
+    id: viewo-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      id: viewo-api
+  template:
+    metadata:
+      labels:
+        id: viewo-api
+    spec:
+      serviceAccountName: ksa-api
+      containers:
+      - name: flutter
+        image: eu.gcr.io/viewo-test-sunny/api:v1
+        imagePullPolicy: Always
+        ports:
+          - name: api
+            containerPort: 3000
+            protocol: TCP
+        volumeMounts:
+        - name: cm-volume
+          mountPath: /usr/src/app/.env
+          subPath: .env
+      volumes:
+      - name: cm-volume
+        configMap:
+          name: viewo-api
+          items:
+          - key: .env
+            path: .env
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api.godemo.art
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+spec:
+  rules:
+  - host: api.godemo.art
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: viewo-api-service
+            port:
+              number: 80
+  ingressClassName: nginx
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: viewo-api-service
+  labels:
+    id: viewo-api
+spec:
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+  selector:
+    id: viewo-api

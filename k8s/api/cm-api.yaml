@@ -1,0 +1,20 @@
+apiVersion: v1
+data:
+  .env: |
+    NODE_ENV=development
+
+    #== APP
+    PORT=3000
+    TRANSPORT_PORT=8080
+    JWT_EXPIRATION_TIME=3600
+    FALLBACK_LANGUAGE=en_US
+    ENABLE_ORM_LOGS=true
+    ENABLE_DOCUMENTATION=true
+    API_VERSION=v1.0.0
+    BASE_DOMAIN=godemo.art
+    BUCKET_NAME=viewo-projects
+    NAMESPACE=preview
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: viewo-api

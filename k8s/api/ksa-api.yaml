@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: null
+  name: ksa-api
+  namespace: preview
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: apiadmin
+  namespace: preview
+rules:
+  - apiGroups: ['*']
+    resources: ['*']
+    verbs: ['*']
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: apiadminbinding
+  namespace: preview
+subjects:
+  - kind: ServiceAccount
+    name: ksa-api
+    namespace: preview
+roleRef:
+  kind: Role
+  name: apiadmin
+  apiGroup: rbac.authorization.k8s.io

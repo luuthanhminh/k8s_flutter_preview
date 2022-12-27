@@ -11,7 +11,6 @@ import { ApiConfigService } from './api-config.service';
 export class K8sService {
   constructor(private apiConfigService: ApiConfigService) {}
   private kc: k8s.KubeConfig | undefined;
-  private core1Api: k8s.CoreV1Api | undefined;
 
   readonly ingressTemplateYaml = path.join(
     __dirname,
@@ -26,8 +25,6 @@ export class K8sService {
     '../../resources/deployment.yaml',
   );
 
-  readonly kubeConfig = path.join(__dirname, '../../resources/config.yaml');
-
   getKubeConfig(): k8s.KubeConfig {
     if (this.kc) {
       return this.kc;
@@ -38,21 +35,19 @@ export class K8sService {
 
     return this.kc;
   }
-  getCoresV1Api(): k8s.CoreV1Api {
-    if (this.core1Api) {
-      return this.core1Api;
-    }
 
-    this.core1Api = this.getKubeConfig().makeApiClient(k8s.CoreV1Api);
-
-    return this.core1Api;
-  }
-
-  async getPods(): Promise<k8s.V1PodList> {
-    const core1Api = this.getCoresV1Api();
-    const pods = await core1Api.listNamespacedPod('preview');
-
-    return pods.body;
+  async getDeployments(): Promise<{ id: string }[]> {
+    const client = this.getKubeConfig().makeApiClient(k8s.AppsV1Api);
+    const deployments = await client.listNamespacedDeployment(
+      this.apiConfigService.namespace,
+    );
+    return deployments.body.items
+      .filter((item) => {
+        return item.metadata?.labels?.app;
+      })
+      .map((item) => ({
+        id: item.metadata?.labels?.app ?? '',
+      }));
   }
 
   replaceAll(input: string, oldChar: string, newChar) {
@@ -66,7 +61,7 @@ export class K8sService {
     let deployment = await fsReadFileP(this.deploymentTemplateYaml, 'utf8');
     const podId = projectDto.id;
     const bucketName = projectDto.bucketName;
-    const domain = projectDto.domain;
+    const domain = projectDto.domain.toLowerCase();
     const nameSpace = this.apiConfigService.namespace;
     deployment = this.replaceAll(deployment, '__PODNAME__', podId);
     deployment = this.replaceAll(deployment, '__PODID__', podId);
@@ -74,18 +69,49 @@ export class K8sService {
     deployment = this.replaceAll(deployment, '__NAMESPACE__', nameSpace);
 
     let ingress = await fsReadFileP(this.ingressTemplateYaml, 'utf8');
-    ingress = this.replaceAll(ingress, '__DOMAIN__', domain.toLowerCase());
+    ingress = this.replaceAll(ingress, '__DOMAIN__', domain);
     ingress = this.replaceAll(ingress, '__NAMESPACE__', nameSpace);
-    ingress = this.replaceAll(ingress, '__NAME__', domain.toLowerCase());
+    ingress = this.replaceAll(ingress, '__INGNAME__', `ing-${podId}`);
     ingress = this.replaceAll(ingress, '__SVCNAME__', `svc-${podId}`);
+    ingress = this.replaceAll(ingress, '__PODID__', podId);
 
     let service = await fsReadFileP(this.serviceTemplateYaml, 'utf8');
     service = this.replaceAll(service, '__PODID__', podId);
-    service = this.replaceAll(service, '__NAME__', `svc-${podId}`);
+    service = this.replaceAll(service, '__SVCNAME__', `svc-${podId}`);
+    service = this.replaceAll(service, '__NAMESPACE__', nameSpace);
+    console.log(deployment);
+    const tasks = [deployment, service, ingress].map((spec) =>
+      this.apply(spec),
+    );
+    await Promise.all(tasks);
+  }
+
+  async unDeployProject(projectDto: ProjectDto): Promise<void> {
+    const fsReadFileP = promisify(fs.readFile);
+    let deployment = await fsReadFileP(this.deploymentTemplateYaml, 'utf8');
+    const podId = projectDto.id;
+    const bucketName = projectDto.bucketName;
+    const domain = projectDto.domain.toLowerCase();
+    const nameSpace = this.apiConfigService.namespace;
+    deployment = this.replaceAll(deployment, '__PODNAME__', podId);
+    deployment = this.replaceAll(deployment, '__PODID__', podId);
+    deployment = this.replaceAll(deployment, '__BUCKETNAME__', bucketName);
+    deployment = this.replaceAll(deployment, '__NAMESPACE__', nameSpace);
+
+    let ingress = await fsReadFileP(this.ingressTemplateYaml, 'utf8');
+    ingress = this.replaceAll(ingress, '__DOMAIN__', domain);
+    ingress = this.replaceAll(ingress, '__NAMESPACE__', nameSpace);
+    ingress = this.replaceAll(ingress, '__INGNAME__', `ing-${podId}`);
+    ingress = this.replaceAll(ingress, '__SVCNAME__', `svc-${podId}`);
+    ingress = this.replaceAll(ingress, '__PODID__', podId);
+
+    let service = await fsReadFileP(this.serviceTemplateYaml, 'utf8');
+    service = this.replaceAll(service, '__PODID__', podId);
+    service = this.replaceAll(service, '__SVCNAME__', `svc-${podId}`);
     service = this.replaceAll(service, '__NAMESPACE__', nameSpace);
 
     const tasks = [deployment, service, ingress].map((spec) =>
-      this.apply(spec),
+      this.delete(spec),
     );
     await Promise.all(tasks);
   }
@@ -183,5 +209,42 @@ export class K8sService {
       }
     }
     return created;
+  }
+
+  async delete(k8Yaml: string): Promise<boolean> {
+    const client = k8s.KubernetesObjectApi.makeApiClient(this.getKubeConfig());
+    const specs: k8s.KubernetesObject[] = yaml.loadAll(
+      k8Yaml,
+    ) as k8s.KubernetesObject[];
+    const validSpecs = specs.filter((s) => s && s.kind && s.metadata);
+    for (const spec of validSpecs) {
+      // this is to convince the old version of TypeScript that metadata exists even though we already filtered specs
+      // without metadata out
+      spec.metadata = spec.metadata || {};
+      spec.metadata.annotations = spec.metadata.annotations || {};
+      delete spec.metadata.annotations[
+        'kubectl.kubernetes.io/last-applied-configuration'
+      ];
+      spec.metadata.annotations[
+        'kubectl.kubernetes.io/last-applied-configuration'
+      ] = JSON.stringify(spec);
+      try {
+        // try to get the resource, if it does not exist an error will be thrown and we will end up in the catch
+        // block.
+        await client.read(spec);
+        // we got the resource, so it exists, so patch it
+        //
+        // Note that this could fail if the spec refers to a custom resource. For custom resources you may need
+        // to specify a different patch merge strategy in the content-type header.
+        //
+        // See: https://github.com/kubernetes/kubernetes/issues/97423
+        await client.delete(spec);
+        return true;
+      } catch (e) {
+        // we did not get the resource, so it does not exist, so create it
+        console.log(e);
+      }
+    }
+    return false;
   }
 }

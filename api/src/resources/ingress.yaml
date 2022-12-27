@@ -1,8 +1,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: __DOMAIN__
+  name: __INGNAME__
   namespace: __NAMESPACE__
+  labels:
+    app: __PODID__
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/proxy-body-size: 10m
