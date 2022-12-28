@@ -37,12 +37,11 @@ RUN flutter config --enable-web
 RUN mkdir /app/
 # COPY . /app/
 WORKDIR /app/
-# RUN flutter build web
 
 # Record the exposed port
 EXPOSE 3000 5000
 
-# CMD ["flutter", "run", "--web-port", "5000" , "-d", "web-server"]
-# flutter run --web-port 5000 -d web-server --web-hostname 0.0.0.0
+RUN mkfifo /tmp/tmuxpipe
 
-CMD ["tail", "-f", "/dev/null"]
+# CMD ["tail", "-f", "/dev/null"]
+CMD [ "cat", "/tmp/tmuxpipe"]
